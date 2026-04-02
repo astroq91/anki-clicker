@@ -5,4 +5,4 @@ project(anki_clicker)
 
 # Add your source file to the "app" target. This must come after the boilerplate
 # code, which defines the target. Note relative path to source file
-target_sources(app PRIVATE ../src/main.c)
+target_sources(app PRIVATE ../src/main.c ../src/hog.c)
