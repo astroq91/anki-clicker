@@ -10,17 +10,17 @@
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/printk.h>
-#include <sys/byteorder.h>
-#include <kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/kernel.h>
 
-#include <settings/settings.h>
+#include <zephyr/settings/settings.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
 
 #include "hog.h"
 
@@ -42,16 +42,16 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	if (err) {
-		printk("Failed to connect to %s, err 0x%02x\n", addr,
-		       err);
+		printk("Failed to connect to %s, err 0x%02x %s\n", addr,
+		       err, bt_hci_err_to_str(err));
 		return;
 	}
 
-  if (bt_conn_set_security(conn, BT_SECURITY_L2)) {
-      printk("Failed to set security\n");
-  }
-
 	printk("Connected %s\n", addr);
+
+	if (bt_conn_set_security(conn, BT_SECURITY_L2)) {
+		printk("Failed to set security\n");
+	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -60,8 +60,8 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	printk("Disconnected from %s, reason 0x%02x\n", addr,
-	       reason);
+	printk("Disconnected from %s, reason 0x%02x %s\n", addr,
+	       reason, bt_hci_err_to_str(reason));
 }
 
 static void security_changed(struct bt_conn *conn, bt_security_t level,
@@ -74,8 +74,8 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 	if (!err) {
 		printk("Security changed: %s level %u\n", addr, level);
 	} else {
-		printk("Security failed: %s level %u (%d)\n", addr, level,
-		        err);
+		printk("Security failed: %s level %u err %s(%d)\n", addr, level,
+		       bt_security_err_to_str(err), err);
 	}
 }
 
@@ -100,7 +100,7 @@ static void bt_ready(int err)
 		settings_load();
 	}
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (err) {
 		printk("Advertising failed to start (err %d)\n", err);
 		return;
@@ -128,9 +128,8 @@ static void auth_cancel(struct bt_conn *conn)
 }
 
 static struct bt_conn_auth_cb auth_cb_display = {
-	.passkey_display = NULL,
+	.passkey_display = auth_passkey_display,
 	.passkey_entry = NULL,
-  .passkey_confirm = NULL,
 	.cancel = auth_cancel,
 };
 
@@ -138,16 +137,17 @@ int main(void)
 {
 	int err;
 
-  bt_conn_auth_cb_register(&auth_cb_display);
-
 	err = bt_enable(bt_ready);
 	if (err) {
 		printk("Bluetooth init failed (err %d)\n", err);
 		return 0;
 	}
-  while (1) {
-        k_sleep(K_FOREVER);
-    }
-	//hog_button_loop();
+
+	if (IS_ENABLED(CONFIG_SAMPLE_BT_USE_AUTHENTICATION)) {
+		bt_conn_auth_cb_register(&auth_cb_display);
+		printk("Bluetooth authentication callbacks registered.\n");
+	}
+
+	hog_button_loop();
 	return 0;
 }

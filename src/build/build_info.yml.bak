@@ -1,0 +1,61 @@
+cmake:
+  application:
+    configuration-dir: '/home/astro/zephyr-mcuboot/zephyr/samples/bluetooth/peripheral_hids'
+    source-dir: '/home/astro/zephyr-mcuboot/zephyr/samples/bluetooth/peripheral_hids'
+  board:
+    name: 'nrf52840dk'
+    path:
+     - '/home/astro/zephyr-mcuboot/zephyr/boards/nordic/nrf52840dk'
+    qualifiers: 'nrf52840'
+    revision: ''
+  devicetree:
+    bindings-dirs:
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/bindings'
+    files:
+     - '/home/astro/zephyr-mcuboot/zephyr/boards/nordic/nrf52840dk/nrf52840dk_nrf52840.dts'
+    include-dirs:
+     - '/home/astro/zephyr-mcuboot/modules/hal/ambiq/dts'
+     - '/home/astro/zephyr-mcuboot/modules/hal/atmel/include'
+     - '/home/astro/zephyr-mcuboot/modules/hal/bouffalolab/include'
+     - '/home/astro/zephyr-mcuboot/modules/hal/bouffalolab/include/zephyr'
+     - '/home/astro/zephyr-mcuboot/modules/hal/gigadevice/include'
+     - '/home/astro/zephyr-mcuboot/modules/hal/microchip/include'
+     - '/home/astro/zephyr-mcuboot/modules/hal/microchip/dts'
+     - '/home/astro/zephyr-mcuboot/modules/hal/nuvoton/dts'
+     - '/home/astro/zephyr-mcuboot/modules/hal/nxp/dts'
+     - '/home/astro/zephyr-mcuboot/modules/hal/stm32/dts'
+     - '/home/astro/zephyr-mcuboot/modules/hal/ti/dts'
+     - '/home/astro/zephyr-mcuboot/zephyr/include'
+     - '/home/astro/zephyr-mcuboot/zephyr/include/zephyr'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/common'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/vendor'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/rx'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/x86'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/xtensa'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/sparc'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/riscv'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/posix'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/arm64'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/arm'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts/arc'
+     - '/home/astro/zephyr-mcuboot/zephyr/dts'
+  kconfig:
+    files:
+     - '/home/astro/zephyr-mcuboot/zephyr/boards/nordic/nrf52840dk/nrf52840dk_nrf52840_defconfig'
+     - '/home/astro/zephyr-mcuboot/zephyr/samples/bluetooth/peripheral_hids/prj.conf'
+    user-files:
+     - '/home/astro/zephyr-mcuboot/zephyr/samples/bluetooth/peripheral_hids/prj.conf'
+  toolchain:
+    name: 'zephyr'
+    path: '/home/astro/Downloads/zephyr-sdk-1.0.1'
+  vendor-specific:
+    nordic:
+      svdfile: '/home/astro/zephyr-mcuboot/modules/hal/nordic/nrfx/bsp/stable/mdk/nrf52840.svd'
+  zephyr:
+    version: '4.4.0-rc1'
+    zephyr-base: '/home/astro/zephyr-mcuboot/zephyr'
+version: '0.1.0'
+west:
+  command: '/home/astro/.local/bin/west build -b nrf52840dk'
+  topdir: '/home/astro/zephyr-mcuboot'
+  version: '1.5.0'

@@ -1,0 +1,1 @@
+"mcuboot":"/home/astro/zephyr-mcuboot/bootloader/mcuboot":"/home/astro/zephyr-mcuboot/bootloader/mcuboot/boot/zephyr/sysbuild"

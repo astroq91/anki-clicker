@@ -1,0 +1,2 @@
+# Load Zephyr board defconfig descriptions.
+osource "/home/astro/zephyr-mcuboot/zephyr/boards/nordic/nrf52840dk/Kconfig.defconfig"
