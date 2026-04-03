@@ -52,40 +52,56 @@ enum {
 };
 
 static struct hids_report input = {
-	.id = 0x01,
+	.id = 0x00,
 	.type = HIDS_INPUT,
 };
 
 static uint8_t simulate_input;
 static uint8_t ctrl_point;
-static uint8_t report_map[] = {
-	0x05, 0x01, /* Usage Page (Generic Desktop Ctrls) */
-	0x09, 0x02, /* Usage (Mouse) */
-	0xA1, 0x01, /* Collection (Application) */
-	0x85, 0x01, /*	 Report Id (1) */
-	0x09, 0x01, /*   Usage (Pointer) */
-	0xA1, 0x00, /*   Collection (Physical) */
-	0x05, 0x09, /*     Usage Page (Button) */
-	0x19, 0x01, /*     Usage Minimum (0x01) */
-	0x29, 0x03, /*     Usage Maximum (0x03) */
-	0x15, 0x00, /*     Logical Minimum (0) */
-	0x25, 0x01, /*     Logical Maximum (1) */
-	0x95, 0x03, /*     Report Count (3) */
-	0x75, 0x01, /*     Report Size (1) */
-	0x81, 0x02, /*     Input (Data,Var,Abs,No Wrap,Linear,...) */
-	0x95, 0x01, /*     Report Count (1) */
-	0x75, 0x05, /*     Report Size (5) */
-	0x81, 0x03, /*     Input (Const,Var,Abs,No Wrap,Linear,...) */
-	0x05, 0x01, /*     Usage Page (Generic Desktop Ctrls) */
-	0x09, 0x30, /*     Usage (X) */
-	0x09, 0x31, /*     Usage (Y) */
-	0x15, 0x81, /*     Logical Minimum (129) */
-	0x25, 0x7F, /*     Logical Maximum (127) */
-	0x75, 0x08, /*     Report Size (8) */
-	0x95, 0x02, /*     Report Count (2) */
-	0x81, 0x06, /*     Input (Data,Var,Rel,No Wrap,Linear,...) */
-	0xC0,       /*   End Collection */
-	0xC0,       /* End Collection */
+static const uint8_t report_map[] = {
+    0x05, 0x01,        // Usage Page (Generic Desktop)
+    0x09, 0x06,        // Usage (Keyboard)
+    0xA1, 0x01,        // Collection (Application)
+
+    // Modifier byte
+    0x05, 0x07,        //   Usage Page (Keyboard)
+    0x19, 0xE0,        //   Usage Minimum (224)
+    0x29, 0xE7,        //   Usage Maximum (231)
+    0x15, 0x00,        //   Logical Minimum (0)
+    0x25, 0x01,        //   Logical Maximum (1)
+    0x75, 0x01,        //   Report Size (1)
+    0x95, 0x08,        //   Report Count (8)
+    0x81, 0x02,        //   Input (Data,Var,Abs)
+
+    // Reserved byte
+    0x95, 0x01,
+    0x75, 0x08,
+    0x81, 0x01,        //   Input (Const)
+
+    // LED output report
+    0x95, 0x05,
+    0x75, 0x01,
+    0x05, 0x08,        //   Usage Page (LEDs)
+    0x19, 0x01,
+    0x29, 0x05,
+    0x91, 0x02,        //   Output (Data,Var,Abs)
+
+    // LED padding
+    0x95, 0x01,
+    0x75, 0x03,
+    0x91, 0x01,        //   Output (Const)
+
+    // Key array (6 keys)
+    0x95, 0x06,
+    0x75, 0x08,
+    0x15, 0x00,
+    0x25, 0x65,
+    0x05, 0x07,
+    0x19, 0x00,
+    0x29, 0x65,
+    0x81, 0x00,        //   Input (Data,Array)
+
+    0xC0               // End Collection
 };
 
 
@@ -186,21 +202,6 @@ void hog_button_loop(void)
 	gpio_pin_configure_dt(&sw0, GPIO_INPUT);
 
 	for (;;) {
-		if (simulate_input) {
-			/* HID Report:
-			 * Byte 0: buttons (lower 3 bits)
-			 * Byte 1: X axis (int8)
-			 * Byte 2: Y axis (int8)
-			 */
-			int8_t report[3] = {0, 0, 0};
-
-			if (gpio_pin_get_dt(&sw0)) {
-				report[0] |= BIT(0);
-			}
-
-			bt_gatt_notify(NULL, &hog_svc.attrs[5],
-				       report, sizeof(report));
-		}
 		k_sleep(K_MSEC(100));
 	}
 #endif
